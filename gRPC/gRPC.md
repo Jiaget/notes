@@ -75,3 +75,23 @@ gRPC 使用HTTP/2来转换protocol
 |--|--|--|
 |PROTOCOL|HTTP/2(faster)|HTTP/1.1|
 |Payload|protobuf(binary, smaller)| JSON|
+|API contract|Strict, 必备（.proto）|Loose,可选（Open API）|
+|Code generation|built-in(protoc) 自带的|需要第三方工具，比如Swagger|
+|安全性|TLS/SSL|TLS/SSL|
+|数据流方向|双向|只支持客户端到服务端request|
+|支持的浏览器|只支持gRPC-web|所有|
+
+### gRPC的亮点
+什么时候适合gRPC
+- 微服务
+  - 低延迟，高吞吐
+  - API 协议完善
+- 多语言环境
+  - 可以在多语言代码体系外给它们生成代码
+- 点对点实时通信
+  - 支持双向通信
+- 网络环境受限（网络较差，比如：手机应用）
+  - 轻量的数据格式
+  
+# 实战项目：
+[练习gRPC的小项目：PC-BOOK](https://github.com/Jiaget/pc-Book)
