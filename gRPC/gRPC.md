@@ -54,3 +54,24 @@ gRPC 使用HTTP/2来转换protocol
 |单连接的请求数|多个|单个|
 |服务推送|可|不可|
 |公布年份|2015|1997|
+
+### 4 种gRPC
+- 一元（unary）:
+  - 和传统的HTTP相似
+- 客户端流（client streaming）:
+  - 客户端发送多条信息
+  - 服务器返回一条
+- 服务端流（server streaming）:
+  - 客户端发送一条
+  - 服务端返回多条
+- 双向流（biderectional streaming）:
+  - 双方都发送多条数据
+  - 并发的
+  - 无需等待
+![4 types](./4types-gRPC.png)
+
+### gRPC and REST
+||GRPC|REST|
+|--|--|--|
+|PROTOCOL|HTTP/2(faster)|HTTP/1.1|
+|Payload|protobuf(binary, smaller)| JSON|
