@@ -4,9 +4,9 @@
 |                                                |                           |
 | ---------------------------------------------- | ------------------------- |
 | Handshake                                      | (握手)                    |
-| Symmetric cryptography                         | (对称密钥)                |
-| Asymmetric cryptography                        | (非对称密钥)              |
-| Elliptic-curve cryptography                    | (椭圆曲线密钥)            |
+| Symmetric cryptography                         | (对称密码学)              |
+| Asymmetric cryptography                        | (非对称密码学)            |
+| Elliptic-curve cryptography                    | (椭圆曲线密码学)          |
 | Digital certificates                           | (数字证书)                |
 | Certificate authority                          | (证书颁发)                |
 | Digital signature                              | (数字签名)                |
@@ -33,9 +33,9 @@
 
 TLS 提供了？
 - 认证 `Authentication`
-  - 使用非对称密钥来验证访问者身份。
+  - 使用非对称密码学来验证访问者身份。
 - 保密 `Confidentiality`
-  - 用对称密钥保护在未经认证的访问过程中交换的数据。
+  - 用对称密码学保护在未经认证的访问过程中交换的数据。
 - 可靠 `integrity `
   - 使用消息验证码机制保护数据
 
@@ -43,8 +43,8 @@ TLS 提供了？
 - 握手协议 （认证）
   - 客户端和服务端统一`TLS`协议版本
   - 选择一个密钥算法：一个密钥套件
-  - 使用非对称密钥进行认证
-  - 使用对称密钥需要建一个`secret key`。
+  - 使用非对称密码学进行认证
+  - 使用对称密码学需要建一个`secret key`。
 - 记录协议 (保密，可靠)
   - 使用 `secret key` 加密消息并发送
   - 使用 `secret key` 解密收到的消息
@@ -104,4 +104,63 @@ TLS 提供了？
 (A^b) mod p = (g^a)^b mod p = ( g^(a*b) ) mod p
 ```
 
-## 衍生功能 KDF
+## 衍生功能 KDF (key derivation function) 密钥传导功能
+该功能将输出共享密钥的所需长度。
+
+![kdf](kdf.png)
+我们需要：
+- IKM（Input Key Material） 即刚才生成的数字`S = A^b mod p`
+- Key的长度 比如 `128 bit`
+- 加密哈希函数 如 `HMAC-SHA256`
+- （可选）上下文，或者特定信息
+- （可选） salt...
+
+## 陷阱门
+回到迪菲-赫尔曼的key交换。
+
+在迪菲-赫尔曼算法中，下面信息是公有信息 
+`p, g, A, B`
+
+也就是说，黑客也能获取这些数字，所以，这些数字泄露后，能否还能保证消息交换机制的安全性。也就是说，黑客如果知道了这些公有数，能否通过某个公式算出 `a,b` 甚至是 `S`。
+
+如果我们选择合适的数，就能成为一个陷阱门。黑客想要破解将要耗费大量的时间。
+
+![trapdoor](trapdoor.png)
+
+比如：
+- `p` 作为一个 `mod` 数，可以选择一个素数 `2048-bit`
+- 选择一个原始根模 `g`
+- 选择随机整数 `a` `b` `256-bit`
+
+陷阱门的意思是指：
+- 用 `a, p, g` , 我们可以很容易算出 `A`  `A = g ^ a mod p`
+- 但是 只有`A, p, g`， 我们就很难算出 `a`
+
+至少这个问题在当前是无法计算出来的。
+
+## 静态还是临时？
+![static](static.png)
+如果我们使用静态的 `key`: `a`, `b`。
+
+当双方进行频繁得建立会话，黑客可以通过不断记录他们交换的 `S`, 并尝试去破解它。
+
+虽然这可能需要很长时间，但是假如密钥没有更换，黑客还是有可能破解密钥。这同样是危险的问题。
+
+所以我们得使用临时密钥。即每建立一个会话我们都生成新的密钥，即使黑客计算出其中一个会话的密钥，也将会失效。
+![ephemeral](ephemeral.png)
+
+# 椭圆曲线密码学（ELLIPTC-CURVE CRYPTOGRAPHY）
+即ECC。是一种非对称加密算法。流程与上类似，但是使用的陷阱门函数不同。
+
+该陷阱门函数基于椭圆曲线的代数结构。
+
+它的价值在于：使用更小的key来提供相等的安全等级。
+
+但是该算法容易受到量子计算攻击 
+[肖尔算法](https://en.wikipedia.org/wiki/Shor%27s_algorithm)
+
+虽然这些都是在量子计算机出现之后才需要担心的问题，但是也有另一个基于椭圆曲线密码学的交换算法 [超星体异质差异-赫尔曼](https://en.wikipedia.org/wiki/Supersingular_isogeny_key_exchange)
+
+# 不对称密码学
+
+
