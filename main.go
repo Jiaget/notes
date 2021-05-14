@@ -5,5 +5,7 @@ import (
 )
 
 func main() {
-	fmt.Println("hello world")
+	a := [10]rune{}
+	b := make([]rune, 10)
+	fmt.Println(len(a), len(b))
 }
