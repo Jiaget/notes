@@ -7,26 +7,40 @@ import (
 )
 
 func main() {
-	start1 := time.Now()
-	testNums := generate(10000, 0, 1000)
-	sorted := quickSort1(testNums)
-	end1 := time.Now()
-	time1 := end1.Sub(start1)
+	fmt.Println("这是一个 《冒泡排序，简单快排， 带二分思想的快排》 的排序效率测试")
+	var n int
+	fmt.Print("请输入待排序数组长度:")
+	fmt.Scanf("%d", &n)
+	testNums := generate(n, 0, 1000)
+	testquickSort1(testNums)
+	testquickSort2(testNums)
+	testbubble(testNums)
 
-	start3 := time.Now()
-	sorted = bubbleSort(testNums)
-	end3 := time.Now()
-	fmt.Println("数组长度", len(sorted))
-	// fmt.Printf("待快排数组:%v\n", testNums)
-	// fmt.Printf("排序后：%v\n", sorted)
-	fmt.Println("------------------")
-	fmt.Printf("快排1的用时: %v\n", time1)
-	start2 := time.Now()
-	quickSort2(testNums, 0, len(testNums)-1)
-	end2 := time.Now()
-	fmt.Println("快排2的用时：", end2.Sub(start2))
-	fmt.Println("冒泡排序：", end3.Sub(start3))
+}
 
+func testquickSort1(nums []int) {
+	copy := nums[:]
+	start := time.Now()
+	_ = quickSort1(copy)
+	end := time.Now()
+	time := start.Sub(end)
+	fmt.Printf("简单快排所花费的时间：%v\n", time)
+}
+func testquickSort2(nums []int) {
+	copy := nums[:]
+	start := time.Now()
+	quickSort2(copy, 0, len(copy)-1)
+	end := time.Now()
+	time := start.Sub(end)
+	fmt.Printf("二分思想的快排所花费的时间：%v\n", time)
+}
+func testbubble(nums []int) {
+	copy := nums[:]
+	start := time.Now()
+	_ = bubbleSort(copy)
+	end := time.Now()
+	time := start.Sub(end)
+	fmt.Printf("冒泡排序所花费的时间：%v\n", time)
 }
 
 func generate(size, min, max int) []int {
@@ -93,7 +107,7 @@ func bubbleSort(arr []int) []int {
 		return arr
 	}
 	for i := 0; i < length-1; i++ {
-		for j := 0; j < length-i-1; j++ {
+		for j := i; j < length-1; j++ {
 			if arr[j+1] < arr[j] {
 				arr[j], arr[j+1] = arr[j+1], arr[j]
 			}

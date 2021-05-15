@@ -1,4 +1,4 @@
-# 0.主要内容
+# 0. 主要内容
 - WaitGroup的定义
 - WaitGroup的实现 
     - (`CAS`的使用)
@@ -7,12 +7,12 @@
 - 适合的场景 
     - 适合逻辑结构相同的协程。
     - 复杂场景不适用，因为其代码不简洁
-# 1.WaitGroup
+# 1. WaitGroup
 `WaitGroup` 是一个定义在`sync`包中用于控制协程的结构体类型。
 
 主协程通过调用`Add`方法来设置需要等待的协程数量，每个协程在它运行完毕时调用`Done`方法，再在主协程中调用`Wait`方法可以阻塞到所有协程运行完毕。
 
-# 实例 与 注意事项
+# 2. 实例 与 注意事项
 - 这是简单的`WaitGroup`使用场景。
     - 每开启一个`goroutine`前需要通过`Add`方法通知`WaitGroup`需要等待协程数增加。
     - 每个协程结束前通过`Done`方法通知 `WaitGroup`
@@ -56,3 +56,12 @@ func wg(){
 		runtime_Semrelease(semap, false, 0)
 	}
     ```
+
+# 3. 源码学习
+- 原子操作（重点`CompareAndSwap  -CAS`）
+    - `Add` 中:
+        - `state := atomic.AddUint64(statep, uint64(delta)<<32)`
+    - `Wait`:
+        - `state := atomic.LoadUint64(statep)`
+        - `atomic.CompareAndSwapUint64(statep, state, state+1)`
+    - `CAS` 操作性能比锁要高
