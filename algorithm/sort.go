@@ -1,4 +1,4 @@
-package main
+package algorithm
 
 import (
 	"fmt"
@@ -6,44 +6,58 @@ import (
 	"time"
 )
 
-func main() {
-	fmt.Println("这是一个 《冒泡排序，简单快排， 带二分思想的快排》 的排序效率测试")
+// 排序算法测试
+func SortTest() {
+	fmt.Println("这是一个 【冒泡排序，简单快排， 优化快排， 归并排序】 的排序效率测试")
 	var n int
 	fmt.Print("请输入待排序数组长度:")
 	fmt.Scanf("%d", &n)
-	testNums := generate(n, 0, 1000)
-	testquickSort1(testNums)
-	testquickSort2(testNums)
-	testbubble(testNums)
-
+	testNums := Generate(n, 0, 1000)
+	TestquickSort1(testNums)
+	TestquickSort2(testNums)
+	Testbubble(testNums)
+	TestMergeSort(testNums)
 }
 
-func testquickSort1(nums []int) {
-	copy := nums[:]
+func TestMergeSort(nums []int) {
+	copied := make([]int, len(nums))
+	copy(copied, nums)
 	start := time.Now()
-	_ = quickSort1(copy)
+	_ = mergeSort(copied)
 	end := time.Now()
-	time := start.Sub(end)
+	time := end.Sub(start)
+	fmt.Printf("归并排序所花费的时间：%v\n", time)
+}
+
+func TestquickSort1(nums []int) {
+	copied := make([]int, len(nums))
+	copy(copied, nums)
+	start := time.Now()
+	_ = quickSort1(copied)
+	end := time.Now()
+	time := end.Sub(start)
 	fmt.Printf("简单快排所花费的时间：%v\n", time)
 }
-func testquickSort2(nums []int) {
-	copy := nums[:]
+func TestquickSort2(nums []int) {
+	copied := make([]int, len(nums))
+	copy(copied, nums)
 	start := time.Now()
-	quickSort2(copy, 0, len(copy)-1)
+	quickSort2(copied, 0, len(copied)-1)
 	end := time.Now()
-	time := start.Sub(end)
-	fmt.Printf("二分思想的快排所花费的时间：%v\n", time)
+	time := end.Sub(start)
+	fmt.Printf("优化快排所花费的时间：%v\n", time)
 }
-func testbubble(nums []int) {
-	copy := nums[:]
+func Testbubble(nums []int) {
+	copied := make([]int, len(nums))
+	copy(copied, nums)
 	start := time.Now()
-	_ = bubbleSort(copy)
+	_ = bubbleSort(copied)
 	end := time.Now()
-	time := start.Sub(end)
+	time := end.Sub(start)
 	fmt.Printf("冒泡排序所花费的时间：%v\n", time)
 }
 
-func generate(size, min, max int) []int {
+func Generate(size, min, max int) []int {
 	nums := make([]int, size)
 	for i := range nums {
 		nums[i] = random(0, 10000)
@@ -114,4 +128,43 @@ func bubbleSort(arr []int) []int {
 		}
 	}
 	return arr
+}
+
+func mergeSort(nums []int) []int {
+	length := len(nums)
+	if length <= 1 {
+		return nums
+	}
+	mid := length / 2
+	left := mergeSort(nums[:mid])
+	right := mergeSort(nums[mid:])
+	return merge(left, right)
+}
+
+// left, right 是两个有序数组，我们要将它们有序地合并形成新的有序数组
+func merge(left []int, right []int) (res []int) {
+	left_size := len(left)
+	right_size := len(right)
+	i, j := 0, 0
+
+	for {
+		// 如果left 先遍历完, right[j:]未遍历的数肯定比left[i]大，合并在右边就行
+		if i == left_size {
+			res = append(res, right[j:]...)
+			break
+		}
+		if j == right_size {
+			res = append(res, left[i:]...)
+			break
+		}
+
+		if left[i] > right[j] {
+			res = append(res, right[j])
+			j++
+		} else {
+			res = append(res, left[i])
+			i++
+		}
+	}
+	return
 }

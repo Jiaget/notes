@@ -1,4 +1,4 @@
-package main
+package algorithm
 
 // 打开转盘锁
 
