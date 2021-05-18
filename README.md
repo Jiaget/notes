@@ -12,6 +12,8 @@
   - [实践](https://github.com/Jiaget/notes/tree/main/SSL_TLS/practise)
 
 - Go语言
+
+  [参考资料](https://www.kancloud.cn/aceld/golang)
   - Goroutine
     - waitGroup
     - channel
