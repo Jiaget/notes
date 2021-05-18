@@ -25,9 +25,10 @@ func (uf *UnionFind) find(x int) int {
 	}
 	// 路径压缩，将root节点和x之间的所有节点和root直接连接
 	for x != root {
-		origParent := uf.parent[x]
-		uf.parent[x] = root
-		x = origParent
+		uf.parent[x], x = root, uf.parent[x]
+		// origParent := uf.parent[x]
+		// uf.parent[x] = root
+		// x = origParent
 	}
 	return root
 }
