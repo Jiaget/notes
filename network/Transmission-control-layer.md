@@ -43,3 +43,6 @@
 ## 四次分手的抓包实操 (linux)
 - `curl www.baidu.com` 访问www.baidu.com， 会收到响应
 - `tcpdump -nn -i eth0 port 80` 监听80端口的TCP连接。 再加`-X` 详细内容
+
+windows wsl 不支持tcpdump...
+`tcpdump: socket: Socket type not supported`
