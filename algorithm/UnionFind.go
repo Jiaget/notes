@@ -17,7 +17,7 @@ func NewUnionFind(n int) *UnionFind {
 	}
 }
 
-func (uf *UnionFind) find(x int) int {
+func (uf *UnionFind) Find(x int) int {
 	// 查找根节点
 	root := x
 	for uf.parent[root] != root {
@@ -33,8 +33,8 @@ func (uf *UnionFind) find(x int) int {
 	return root
 }
 
-func (uf *UnionFind) merge(x, y int) {
-	xRoot, yRoot := uf.find(x), uf.find(y)
+func (uf *UnionFind) Mmerge(x, y int) {
+	xRoot, yRoot := uf.Find(x), uf.Find(y)
 	if xRoot != yRoot {
 		uf.parent[xRoot] = yRoot
 	}
