@@ -114,3 +114,94 @@ typedef union epoll_data {
 } epoll_data_t;
 ```
 3. 等待
+```
+/**
+*
+* @param epfd 用epoll_create所创建的epoll句柄
+* @param event 从内核得到的事件集合
+* @param maxevents 告知内核这个events有多大,
+* 注意: 值 不能大于创建epoll_create()时的size.
+* @param timeout 超时时间
+* -1: 永久阻塞
+* 0: 立即返回，非阻塞
+* >0: 指定微秒
+*
+* @returns 成功: 有多少文件描述符就绪,时间到时返回0
+* 失败: -1, errno 查看错误
+*/
+int epoll_wait(int epfd, struct epoll_event *event,
+							 int maxevents, int timeout);
+```
+### epoll 基本编程架构
+```
+int epfd = epoll_crete(1000);
+
+//将 listen_fd 添加进 epoll 中
+epoll_ctl(epfd, EPOLL_CTL_ADD, listen_fd,&listen_event);
+
+while (1) {
+	//阻塞等待 epoll 中 的fd 触发
+	int active_cnt = epoll_wait(epfd, events, 1000, -1);
+
+	for (i = 0 ; i < active_cnt; i++) {
+		if (evnets[i].data.fd == listen_fd) {
+			//accept. 并且将新accept 的fd 加进epoll中.
+		}
+		else if (events[i].events & EPOLLIN) {
+			//对此fd 进行读操作
+		}
+		else if (events[i].events & EPOLLOUT) {
+			//对此fd 进行写操作
+		}
+	}
+}
+```
+
+## 常见模型
+
+### 单线程Accept
+![single](./IO-reuse/single-accept.png)
+- 主线程的 `Accept（ListenFd）` 会阻塞主线程
+- 连接成功后，会在服务端生成一个连接的套接字
+- 一次只能形成一个连接，另一个客户端如果尝试连接，会阻塞
+- 处理完当前客户端，并关闭套接字文件，再去处理下一个客户端
+
+### 单线程Accept + 多线程读写业务 (无I/O复用)
+![single+multiple-thread.png](./IO-reuse/single+multiple-thread.png)
+- `Accept(ListenFd)` 监听客户端请求，阻塞主线程
+- 接收客户端请求后，开辟一个新线程，进行读写业务。
+- 主线程继续监听，能处理其他客户端的请求
+
+这个模型虽然支持了并发，但是：
+- 高并发情况下，多线程加重服务器负担
+- 长连接的场景，客户端没有读写业务，但它不关闭，就需要不断进行心跳检测，占用了资源。
+
+### 单线程多路I/O复用
+![single-reuse](./IO-reuse/single-reuseIO.png)
+- 主线程创建 `listenFd`， 采用多路I/O服用机制，进行IO状态阻塞监控。当client1发送请求，检测到了 `listenFd` 触发读时间，运行 accept 建立连接，并将 `connFd1`加入监听集合。
+- client1进行读写请求时，多路IO复用机制的监听阻塞释放，并触发套接字读写事件
+- client1触发的读写业务会使主线程阻塞，无法处理新的客户端的请求。
+
+该模型可以监听多个客户端的读写状态。且发生阻塞，处于非忙轮询的状态，不浪费CPU资源
+
+**缺点**：
+- 能同时监听，但不能同时处理多个客户端的读写请求
+- 不支持高并发场景
+
+## 单线程多路I/O复用 + 多线程业务工作池
+
+该场景使用比较少
+
+![sigle-reuse-thread](./IO-reuse/single-reuse-thread.png)
+- 主线程采用多路I/O复用机制监听连接请求。当监听到客户端连接请求后，处理连接请求，并将生成的`connFd1`加入到监听集合中
+- 当监听到读写事件，则进行读写消息的处理
+- 主线程处理读写消息，将业务逻辑交给工作线程池处理。工作线程池在server启动前开启的一定数量的线程。他们只处理逻辑业务，不处理套接字读写操作。
+- 工作线程池处理完业务，再触发`connFd1`的写事件，将回执消息返回给对方
+
+优点：
+	- 将业务处理分离出来，缩短客户端的等待时间。
+	- 能并发处理客户端业务。
+
+缺点：
+	- 读写处理仍然需要单独处理。(排队)
+	- 业务处理后的结果，也需要按顺序返回给客户端。（排队）
