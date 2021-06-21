@@ -60,7 +60,7 @@ func Testbubble(nums []int) {
 func Generate(size, min, max int) []int {
 	nums := make([]int, size)
 	for i := range nums {
-		nums[i] = random(0, 10000)
+		nums[i] = random(min, max)
 	}
 	return nums
 }

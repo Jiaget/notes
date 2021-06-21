@@ -31,6 +31,8 @@
 - 文件传输 `file transfer` 的 `FTPS`
   - `FTP + TLS`
 
+为这三类应用层协议提供了安全加密服务。
+
 TLS 提供了？
 - 认证 `Authentication`
   - 使用非对称密码学来验证访问者身份。
