@@ -107,6 +107,7 @@ func quickSort2(arr []int, start, end int) {
 		}
 
 		if start < j {
+
 			quickSort2(arr, start, j)
 		}
 		if end > i {
