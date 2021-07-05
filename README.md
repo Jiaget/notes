@@ -9,8 +9,8 @@
   - [实践](https://github.com/Jiaget/pc-Book)
 - 计算机网络
   - SSL/TLS
-    - [理论](https://github.com/Jiaget/notes/blob/main/SSL_TLS/README.md)
-    - [实践](https://github.com/Jiaget/notes/tree/main/SSL_TLS/practise)
+    - [理论](https://github.com/Jiaget/notes/blob/main/network/SSL_TLS/README.md)
+    - [实践](https://github.com/Jiaget/notes/tree/main/network/SSL_TLS/practise)
   - [TCP](https://github.com/Jiaget/notes/blob/main/network/TCP.md)
     - [应用层](https://github.com/Jiaget/notes/blob/main/network/Application-layer.md)
     - [传输控制层](https://github.com/Jiaget/notes/blob/main/network/Transmission-control-layer.md)
